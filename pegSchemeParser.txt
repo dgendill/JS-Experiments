@@ -1,0 +1,50 @@
+// March 23, 2012
+// http://pegjs.majda.cz/
+// http://pegjs.majda.cz/online
+// A Parsing Expression Grammar (PEG) for working with Scheme syntax expressions
+// (+ (1 (f x 3 y)))
+// (* 4 (+ 2 7))
+//
+// 1. Go to http://pegjs.majda.cz/online and paste this file into the
+//    PEG.js grammer field
+// 2. Copy and paste the scheme syntax in the input field
+
+start =
+    expression
+
+validchar
+    = [0-9a-zA-Z_?!+-=@#$%^&*/.]
+    
+atom =
+    chars:validchar+
+        { return chars.join(""); }
+
+whitespace
+    = [ \n\t]
+
+paren 
+    = [()]
+quote
+    = [']
+
+atomOrExpression =
+    atom
+    /
+    expression
+
+expression =
+    atom
+    /
+    "(" whitespace* first:whitespaceAtom+ last:expression* ")" whitespace* comment*
+    {return first.join().split(",").concat(last); }
+    /
+    quote "(" whitespace* first:whitespaceAtom+ last:expression* ")" whitespace* comment*
+    {return ['quote'].concat(first.join().split(",")).concat(last); }
+    
+whitespaceAtom =
+    a:atom+ whitespace*
+    {return a}
+    
+comment =
+    ";;" whitespace* (validchar+ whitespace*)+
+    { return ''; }
