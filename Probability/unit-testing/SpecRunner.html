@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>Probability Unit Tests</title>
+
+  <link rel="shortcut icon" type="image/png" href="lib/jasmine-1.2.0/jasmine_favicon.png">
+  <link rel="stylesheet" type="text/css" href="lib/jasmine-1.2.0/jasmine.css">
+  <script type="text/javascript" src="lib/jasmine-1.2.0/jasmine.js"></script>
+  <script type="text/javascript" src="lib/jasmine-1.2.0/jasmine-html.js"></script>
+	
+	<script type="text/javascript" src="../probability.js"></script>
+  
+
+  <script type="text/javascript">
+		(function() {
+		
+		  var prob = new ProbabilityTools();
+		
+		
+      var jasmineEnv = jasmine.getEnv();
+      jasmineEnv.updateInterval = 1000;
+
+      var htmlReporter = new jasmine.HtmlReporter();
+
+      jasmineEnv.addReporter(htmlReporter);
+
+      jasmineEnv.specFilter = function(spec) {
+        return htmlReporter.specFilter(spec);
+      };
+
+      var currentWindowOnload = window.onload;
+
+      window.onload = function() {
+        if (currentWindowOnload) {
+          currentWindowOnload();
+        }
+        execJasmine();
+      };
+
+			
+			
+      function execJasmine() {
+				
+				describe('Calculating a mix of events, DisjointGroups, JoinedGroups, and Event Series', function() {
+					it('is working', function() {
+						
+						var anyNumber = new Evt('number', (1/6));
+						
+						var rollOneOrTwo = new JoinedGroup([anyNumber, anyNumber]);
+						var rollThreeOrFour =  new JoinedGroup([anyNumber, anyNumber]);
+						var rollFiveOrSix  = new JoinedGroup([anyNumber, anyNumber]);
+						
+						var doItOnce = new EventSeries(rollOneOrTwo, rollThreeOrFour, rollFiveOrSix);
+						var doItTwice = new EventSeries(rollOneOrTwo, rollThreeOrFour, rollFiveOrSix)
+						var twoSpecificThreeTimes = new EventSeries(doItOnce, doItTwice);
+						
+					  console.log(prob.calc(twoSpecificThreeTimes));
+						
+						expect(prob.calc(twoSpecificThreeTimes)).toEqual(.0013717421124828531);
+
+						
+						
+					});
+				});	
+				
+				describe('Calculating probabilty of a JoinedGroup', function() {
+					it('is working', function() {
+						
+						var rollOne = new Evt('1', (1/6));
+						var rollThree =  new Evt('3', (1/6));
+						var rollFive  = new Evt('5', (1/6));
+						var oneThreeOrFive = new JoinedGroup([rollOne, rollThree, rollFive]);
+						expect(prob.calc(oneThreeOrFive)).toEqual(.5);
+						
+					});
+				});
+				
+				describe('Calculating probabilty of a DisjoinedGroup', function() {
+					it('is working', function() {
+						
+
+						var lessEqualTo4 = new Evt('<= 4', (4/6));
+						var oddNumber =  new Evt('odd', 1/2);
+						var eitherNotBoth = new DisjoinedGroup([lessEqualTo4, oddNumber]);
+
+						expect(prob.calc(eitherNotBoth)).toEqual(0.8333333333333333);
+						
+					});
+				});
+				
+				describe('Calculating probabilty of a single Event', function() {
+					it('is working', function() {
+						
+						var rollOne = new Evt('1', (1/6));
+						expect(prob.calc(rollOne)).toEqual(1/6);
+						
+					});
+				});	
+				
+				describe('Calculating a series of events', function() {
+					it('is working', function() {
+						
+						var rollOne = new Evt('1', (1/6));
+						var rollThree =  new Evt('3', (1/6));
+						var rollFive  = new Evt('5', (1/6));
+						
+						var oneThreeOrFive = new EventSeries([rollOne, rollThree, rollFive]);						
+						expect(prob.calc(oneThreeOrFive)).toEqual(0.004629629629629629);
+
+						expect(prob.calc(rollOne)).toEqual(1/6);
+						
+					});
+				});	
+				
+				
+				
+				
+				
+				describe('Calculating binomial expansion', function() {
+					it('is working', function() {
+						
+						var one = prob.binomialExpansion(1, 3, .9);
+						var two = prob.binomialExpansion(2, 3, .9);
+						var three = prob.binomialExpansion(3, 3, .9);
+						
+						var onep = (one === 0.02699999999999999);
+						var twop = (two === 0.24299999999999997 );
+						var threep = (three === 0.7290000000000001);
+						
+						expect(onep && twop && threep).toEqual(true);
+						
+					});
+				});	
+				
+				
+				
+
+				
+
+				jasmineEnv.execute();
+ 
+      }
+
+    })();
+  </script>
+
+</head>
+
+<body>
+</body>
+</html>
